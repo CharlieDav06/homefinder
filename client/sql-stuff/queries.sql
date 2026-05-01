@@ -3,7 +3,7 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS commercial;
+DROP TABLE IF EXISTS property;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -18,4 +18,4 @@ DELETE FROM Residential WHERE property_id = 4;
 SELECT * FROM commercial;
 
 -- @block
-SELECT * FROM Residential WHERE property_id = 4;
+SELECT * FROM Residential;

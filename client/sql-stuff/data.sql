@@ -92,7 +92,7 @@ VALUES
 
 
 
-
+-- @block
 INSERT INTO Property (user_id, name, location, description, image_url)
 VALUES
 (1,
