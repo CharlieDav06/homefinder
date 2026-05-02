@@ -19,13 +19,13 @@ CLIENT_FOLDER = os.path.join(os.path.dirname(__file__), 'client')
 def client_files(filename):
     return send_from_directory(CLIENT_FOLDER, filename)
 
-# Serve booking page
-@app.route('/booking')
-def booking():
-    return send_from_directory(CLIENT_FOLDER, 'booking.html')
-
-# Get all properties
+# Serve properties PAGE at localhost:5000/properties
 @app.route('/properties')
+def index():
+    return send_from_directory(CLIENT_FOLDER, 'properties.html')
+
+# Get all properties DATA at localhost:5000/api/properties
+@app.route('/api/properties')
 def get_properties():
     cur = mysql.connection.cursor()
     cur.execute("""
