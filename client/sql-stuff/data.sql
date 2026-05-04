@@ -93,69 +93,44 @@ VALUES
 
 
 -- @block
-INSERT INTO Property (user_id, name, location, description, image_url)
-VALUES
-(1,
-'York House',
-'High Street, Tutbury, DE13',
-'Spacious period home with large rooms, traditional features, garden, and village location close to amenities.',
-'/images/York House.jpg'
+INSERT INTO Property (user_id, name, location, description, image_url, owner_email)
+VALUES (
+  1, 'York House', 'High Street, Tutbury, DE13',
+  'Spacious period home with large rooms, traditional features, garden, and village location close to amenities.',
+  '/images/York House.jpg', 'james.hartley@gmail.com'
 );
+INSERT INTO Residential (property_id, num_bedrooms, num_bathrooms, is_furnished, price)
+VALUES (LAST_INSERT_ID(), 4, 2, FALSE, 720000);
 
 
-
-INSERT INTO Residential (property_id, num_bedrooms, is_furnished, price)
-VALUES
-(LAST_INSERT_ID(), 4, FALSE, 720000);
-
-
-
-
-
-INSERT INTO Property (user_id, name, location, description, image_url)
-VALUES
-(3,
-'Oatlands',
-'Alderley Edge, Cheshire, SK9',
-'Exceptional luxury residence in a prime Alderley Edge location featuring extensive living space, high-end finishes, landscaped grounds, and secure gated access.',
-'/images/Oatlands House.jpg');
+INSERT INTO Property (user_id, name, location, description, image_url, owner_email)
+VALUES (
+  3, 'Oatlands', 'Alderley Edge, Cheshire, SK9',
+  'Exceptional luxury residence in a prime Alderley Edge location featuring extensive living space, high-end finishes, landscaped grounds, and secure gated access.',
+  '/images/Oatlands House.jpg', 'victoria.pemberton@outlook.com'
+);
+INSERT INTO Residential (property_id, num_bedrooms, num_bathrooms, is_furnished, price)
+VALUES (LAST_INSERT_ID(), 6, 4, TRUE, 6650000);
 
 
-INSERT INTO Residential (property_id, num_bedrooms, is_furnished, price)
-VALUES
-(LAST_INSERT_ID(), 6, TRUE, 6650000);
+INSERT INTO Property (user_id, name, location, description, image_url, owner_email)
+VALUES (
+  1, 'Ironmonger Row Apartment', 'Coventry, West Midlands, CV1',
+  'Modern rental apartment in central Coventry with convenient access to shops, transport links, and local amenities.',
+  '/images/Ironmonger Flat.jpg', 'daniel.shaw@hotmail.com'
+);
+INSERT INTO Rental (property_id, num_bedrooms, num_bathrooms, monthly_rent, security_deposit, lease_duration, is_pet_friendly, lease_terms, is_furnished)
+VALUES (LAST_INSERT_ID(), 2, 1, 690, 800, 12, TRUE, '12 month minimum tenancy, no smoking', TRUE);
 
 
-
-INSERT INTO Property (user_id, name, location, description, image_url)
-VALUES
-(1,
-'Ironmonger Row Apartment',
-'Coventry, West Midlands, CV1',
-'Modern rental apartment in central Coventry with convenient access to shops, transport links, and local amenities.',
-'/images/Ironmonger Flat.jpg');
-
-
-INSERT INTO Rental (property_id,monthly_rent,security_deposit,lease_duration,is_pet_friendly,lease_terms,is_furnished
-)
-VALUES
-(LAST_INSERT_ID(), 690, 800, 12, TRUE, '12 month minimum tenancy, no smoking', TRUE);
-
-
-
-INSERT INTO Property (user_id, name, location, description, image_url)
-VALUES
-(3,
-'Apex Centre Office',
-'55 Calthorpe Road, Edgbaston, Birmingham B15',
-'Modern office space in a prime Edgbaston location offering high-quality commercial accommodation with strong transport links and professional surroundings.',
-'/images/Apex Centre Building.webp');
-
+INSERT INTO Property (user_id, name, location, description, image_url, owner_email)
+VALUES (
+  3, 'Apex Centre Office', '55 Calthorpe Road, Edgbaston, Birmingham B15',
+  'Modern office space in a prime Edgbaston location offering high-quality commercial accommodation with strong transport links and professional surroundings.',
+  '/images/Apex Centre Building.webp', 'sophie.chambers@businessmail.com'
+);
 INSERT INTO Commercial (property_id, square_ft, floors, property_usage, has_parking, zoning_type, price)
-VALUES
-(LAST_INSERT_ID(), 10000, 5, 'Office', TRUE, 'B1', 1400000);
-
-
+VALUES (LAST_INSERT_ID(), 10000, 5, 'Office', TRUE, 'B1', 1400000);
 
 
 

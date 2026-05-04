@@ -77,8 +77,9 @@ CREATE TABLE Property (
 CREATE TABLE Residential (
   property_id INT PRIMARY KEY,
   num_bedrooms INT NOT NULL,
+  num_bathrooms INT NOT NULL,
   is_furnished BOOLEAN NOT NULL,
-  price DECIMAL(12,2) NOT NULL,
+  price INT NOT NULL,
   FOREIGN KEY (property_id) REFERENCES Property(property_id)
 );
 
@@ -90,14 +91,16 @@ CREATE TABLE Commercial (
   property_usage VARCHAR(100) NOT NULL,
   has_parking BOOLEAN NOT NULL,
   zoning_type VARCHAR(100) NOT NULL,
-  price DECIMAL(12,2) NOT NULL,
+  price INT NOT NULL,
   FOREIGN KEY (property_id) REFERENCES Property(property_id)
 );
 
 -- @block
 CREATE TABLE Rental (
   property_id INT PRIMARY KEY,
-  monthly_rent DECIMAL(10,2) NOT NULL,
+  num_bedrooms INT NOT NULL,
+  num_bathrooms INT NOT NULL,
+  monthly_rent INT NOT NULL,
   security_deposit DECIMAL(10,2) NOT NULL,
   lease_duration INT NOT NULL,
   is_pet_friendly BOOLEAN NOT NULL,
