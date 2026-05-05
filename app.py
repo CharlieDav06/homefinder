@@ -1,4 +1,6 @@
 import os
+import bcrypt
+import random
 from flask import Flask, jsonify, send_from_directory
 from flask_mysqldb import MySQL
 
@@ -110,7 +112,185 @@ def create_reservation():
     return jsonify({ 'success': True })
 
 
+@app.route('/register')
+def register_page():
+    return send_from_directory(CLIENT_FOLDER, 'register.html')
 
+
+@app.route('/login')
+def login_page():
+    return send_from_directory(CLIENT_FOLDER, 'login.html')
+
+
+@app.route('/twofa')
+def twofa_page():
+    return send_from_directory(CLIENT_FOLDER, 'twofa.html')
+
+
+@app.route('/api/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({
+            'success': False,
+            'message': 'Email and password are required.'
+        }), 400
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+    existing_user = cur.fetchone()
+
+    if existing_user:
+        cur.close()
+        return jsonify({
+            'success': False,
+            'message': 'This email is already registered.'
+        }), 409
+
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    cur.execute("""
+        INSERT INTO users (email, password)
+        VALUES (%s, %s)
+    """, (email, hashed_password.decode('utf-8')))
+
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({
+        'success': True,
+        'message': 'User registered successfully.'
+    })
+
+
+@app.route('/api/login', methods=['POST'])
+def login_user():
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({
+            'success': False,
+            'message': 'Email and password are required.'
+        }), 400
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("""
+        SELECT user_id, email, password
+        FROM users
+        WHERE email = %s
+    """, (email,))
+
+    user = cur.fetchone()
+
+    if not user:
+        cur.close()
+        return jsonify({
+            'success': False,
+            'message': 'Invalid login details.'
+        }), 401
+
+    user_id = user[0]
+    stored_password = user[2]
+
+    password_matches = bcrypt.checkpw(
+        password.encode('utf-8'),
+        stored_password.encode('utf-8')
+    )
+
+    if not password_matches:
+        cur.close()
+        return jsonify({
+            'success': False,
+            'message': 'Invalid login details.'
+        }), 401
+
+    token = str(random.randint(100000, 999999))
+    expires_at = datetime.now() + timedelta(minutes=5)
+
+    cur.execute("""
+        INSERT INTO twofa_tokens (user_id, token, expires_at)
+        VALUES (%s, %s, %s)
+    """, (user_id, token, expires_at))
+
+    mysql.connection.commit()
+    cur.close()
+
+    print("2FA CODE:", token)
+
+    return jsonify({
+        'success': True,
+        'step': '2FA',
+        'userId': user_id,
+        'message': '2FA code generated.'
+    })
+
+
+@app.route('/api/verify-2fa', methods=['POST'])
+def verify_2fa():
+    data = request.get_json()
+
+    user_id = data.get('userId')
+    token = data.get('token')
+
+    if not user_id or not token:
+        return jsonify({
+            'success': False,
+            'message': 'User ID and token are required.'
+        }), 400
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("""
+        SELECT token_id, expires_at
+        FROM twofa_tokens
+        WHERE user_id = %s
+          AND token = %s
+          AND used = FALSE
+        ORDER BY token_id DESC
+        LIMIT 1
+    """, (user_id, token))
+
+    record = cur.fetchone()
+
+    if not record:
+        cur.close()
+        return jsonify({
+            'success': False,
+            'message': 'Invalid 2FA code.'
+        }), 401
+
+    token_id = record[0]
+    expires_at = record[1]
+
+    if datetime.now() > expires_at:
+        cur.close()
+        return jsonify({
+            'success': False,
+            'message': '2FA code has expired.'
+        }), 401
+
+    cur.execute("""
+        UPDATE twofa_tokens
+        SET used = TRUE
+        WHERE token_id = %s
+    """, (token_id,))
+
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({
+        'success': True,
+        'message': 'Login successful.'
+    })
 
 
 
