@@ -158,3 +158,100 @@ body {
   opacity:0.8;
   cursor:pointer;
 }
+
+
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  position:relative;
+  background: white;
+  border-radius: 12px;
+  width: 700px;
+  max-width: 90vw;
+  height:500px;
+  padding: 32px;
+}
+
+
+
+.modal-close {
+  position:absolute;
+  top:20px;
+  left:20px;
+  font-size:30px;
+  background-color:rgb(5, 150, 105);
+  border:none;
+}
+
+.modal-body {
+  color:rgb(5, 150, 105);
+  font-size:30px;
+  margin-top:50px;
+  text-align: center;
+}
+
+.modal-title{
+  margin-top:50px;
+}
+
+
+.modal-grid{
+  display:grid;
+  grid-template-columns: 300px 300px;
+  row-gap:50px;
+  justify-content: space-around;
+}
+
+.modal-body label {
+}
+
+.modal-body input,
+.modal-body select {
+  display:block;
+}
+
+.modal-footer {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+}
+
+.modal-cancel {
+  font-size:30px;
+  background-color:rgb(235, 137, 137);
+  border:none;
+  padding:10px;
+  border-radius:10px;
+  margin-right:20px;
+}
+
+.modal-submit {
+
+  font-size:30px;
+  background-color:rgb(5, 150, 105);
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:10px;
+
+}
+
+
+.input-box{
+  font-size:20px;
+  margin: 20px auto 0;
+ 
+}

@@ -46,3 +46,9 @@ DROP TABLE Property;
 -- @block
 ALTER TABLE Residential MODIFY COLUMN price INT NOT NULL;
 ALTER TABLE Commercial MODIFY COLUMN price INT NOT NULL;
+
+
+
+
+-- @block
+SELECT * from viewing_reservation;

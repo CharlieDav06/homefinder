@@ -71,3 +71,58 @@ fetch(`http://localhost:5000/api/properties/${propertyId}`)
     });
   })
   .catch(err => console.error(err));
+
+
+
+
+  // Open modal
+document.querySelector('.book-button').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.add('active');
+});
+
+// Close modal
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeModal(); // click outside to close
+});
+
+// Submit booking
+document.getElementById('modal-submit').addEventListener('click', () => {
+  const body = {
+    property_id: propertyId,
+    user_id: 1, // hardcode for now until you have auth
+    reservation_name: document.getElementById('reservation-name').value,
+    schedule_date: document.getElementById('schedule-date').value,
+    reservation_duration: document.getElementById('reservation-duration').value,
+    reservation_type: document.getElementById('reservation-type').value,
+  };
+
+  // Basic validation
+  if (!body.reservation_name || !body.schedule_date) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  fetch('http://localhost:5000/api/reservations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        closeModal();
+        alert('Viewing booked successfully!');
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Could not connect to server.');
+    });
+});

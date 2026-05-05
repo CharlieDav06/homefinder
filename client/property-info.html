@@ -40,6 +40,71 @@
 
 
 
+
+
+  <div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class = "modal-title">Book a Viewing</h2>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class = "modal-grid">
+        <div>
+          <label>Your Name <br></label> 
+          <input class = "input-box" type="text" id="reservation-name" placeholder="Keir Starmer">
+        </div>
+
+        <div>
+          <label>Date & Time</label>
+          <input class = "input-box" type="datetime-local" id="schedule-date">
+        </div>
+
+
+
+
+        <div>
+          <label>Duration (minutes)</label>
+          <select class = "input-box" id="reservation-duration">
+          <option value="30">30 minutes</option>
+          <option value="60">1 hour</option>
+          <option value="90">1.5 hours</option>
+          <option value="120">2 hours</option>
+          </select>
+        </div>
+
+
+
+        <div>
+          <label>Viewing Type</label>
+          <select class = "input-box" id="reservation-type">
+          <option value="in-person">In Person</option>
+          <option value="virtual">Virtual</option>
+          </select>
+        </div>
+
+
+        
+        
+      </div>
+      
+
+
+
+
+      
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-cancel" id="modal-cancel">Cancel</button>
+      <button class="modal-submit" id="modal-submit">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+
+
   <script src="property-info.js"></script>
   
 </body>
