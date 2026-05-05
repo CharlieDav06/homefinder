@@ -78,16 +78,6 @@ def get_property(property_id):
     return jsonify(dict(zip(columns, row)))
 
 
-
-
-
-
-
-
-
-
-from flask import Flask, jsonify, send_from_directory, request  # add request
-
 @app.route('/api/reservations', methods=['POST'])
 def create_reservation():
     data = request.get_json()
