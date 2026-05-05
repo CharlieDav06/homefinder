@@ -1,7 +1,0 @@
-<h2>Login</h2>
-
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-
-<script src="script.js"></script>
