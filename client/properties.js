@@ -63,51 +63,38 @@ function getFilteredProperties() {
 }
 
 function displayProperties(properties) {
-  const grid = document.getElementById('property-grid');
-  grid.innerHTML = '';
+    const grid = document.getElementById('property-grid');
+    grid.innerHTML = '';
+    const userId = localStorage.getItem('userId');
 
-  properties.forEach(property => {
-    const {
-      property_id,
-      name,
-      location,
-      image_url,
-      price,
-      type
-    } = property;
+    properties.forEach(property => {
+        const {property_id, name, location, image_url, price, type} = property;
+        const safePrice = Number(price || 0);
+        const formattedPrice = type === 'rental'
+            ? `£${safePrice.toLocaleString()}/month`
+            : `£${safePrice.toLocaleString()}`;
 
-    const safePrice = Number(price || 0);
-
-    const formattedPrice =
-      type === 'rental'
-        ? `£${safePrice.toLocaleString()}/month`
-        : `£${safePrice.toLocaleString()}`;
-
-    grid.innerHTML += `
-      <div class="property-container">
-        <div class="property-image-container">
-          <img class="property-image"
-               src="/client/assets/property-images/${(image_url || '').split('/').pop()}"
-               alt="${name}">
-        </div>
-
-        <div class="bottom-property-container">
-          <div class="bottom-left-property">
-            <div class="house-price">${formattedPrice}</div>
-            <div class="house-name">${name}</div>
-            <div class="house-location">${location}</div>
-          </div>
-
-          <div class="bottom-right-property">
-            <button class="info-button"
-                    onclick="goToProperty(${property_id})">
-              Find out more
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  });
+        grid.innerHTML += `
+            <div class="property-container">
+                <div class="property-image-container">
+                    <img class="property-image"
+                         src="/client/assets/property-images/${(image_url || '').split('/').pop()}"
+                         alt="${name}">
+                    ${userId ? `<button class="fav-button" onclick="toggleFavourite(${property_id}, this)">♡</button>` : ''}
+                </div>
+                <div class="bottom-property-container">
+                    <div class="bottom-left-property">
+                        <div class="house-price">${formattedPrice}</div>
+                        <div class="house-name">${name}</div>
+                        <div class="house-location">${location}</div>
+                    </div>
+                    <div class="bottom-right-property">
+                        <button class="info-button" onclick="goToProperty(${property_id})">Find out more</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
 }
 
 // Search
@@ -140,13 +127,17 @@ function updateNavbar() {
     const firstName = localStorage.getItem("firstName");
     const role = localStorage.getItem("role");
 
+
     if (userId && firstName) {
-        document.getElementById("auth-buttons").innerHTML = `
-            ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Add Property</button>' : ''}
-            <span class="user-greeting">Hi ${firstName}!</span>
-            <button class="log-in-button" onclick="logout()">Logout</button>
-        `;
-    }
+    document.getElementById("auth-buttons").innerHTML = `
+        ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Add Property</button>' : ''}
+        <button class="log-in-button" onclick="window.location.href='/favourites'">♥ Saved</button>
+        <span class="user-greeting">Hi ${firstName}!</span>
+        <button class="log-in-button" onclick="logout()">Logout</button>
+    `;
+}
+
+    
 }
 
 function logout() {
@@ -160,6 +151,43 @@ function logout() {
         window.location.href = "/login";
     });
 }
+
+
+
+function toggleFavourite(propertyId, btn) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    fetch(API + '/favourites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, property_id: propertyId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            btn.textContent = data.favourited ? '♥' : '♡';
+            btn.classList.toggle('favourited', data.favourited);
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 document.getElementById('sort-select').addEventListener('change', () => displayProperties(getFilteredProperties()));

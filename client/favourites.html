@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favourites - HomeFinder</title>
+  <link rel="stylesheet" href="/client/properties.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="header">
+    <div class="left-header" onclick="window.location.href='/properties'" style="cursor:pointer;">Homefinder Portal🏠🌀</div>
+    <div class="right-header" id="auth-buttons">
+      <button class="sign-up-button" onclick="window.location.href='/register'">sign up</button>
+      <button class="log-in-button" onclick="window.location.href='/login'">Login</button>
+    </div>
+  </div>
+
+  <div style="margin: 40px 50px;">
+    <h1 style="font-family: 'Oswald'; color: rgb(31, 41, 55);">My Saved Properties</h1>
+    <p id="fav-count" style="color: grey;"></p>
+  </div>
+
+  <div class="property-grid" id="favourites-grid"></div>
+
+  <script src="/client/favourites.js"></script>
+</body>
+</html>

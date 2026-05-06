@@ -374,5 +374,67 @@ def add_property():
 
     return jsonify({'success': True, 'message': 'Property added successfully!'})
 
+
+
+
+@app.route('/api/favourites/toggle', methods=['POST'])
+def toggle_favourite():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    property_id = data.get('property_id')
+
+    if not user_id or not property_id:
+        return jsonify({'success': False, 'message': 'Missing data.'}), 400
+
+    con = get_db()
+    cur = con.cursor()
+
+    cur.execute("""
+        SELECT favourite_id FROM Favourites 
+        WHERE user_id = %s AND property_id = %s
+    """, (user_id, property_id))
+    existing = cur.fetchone()
+
+    if existing:
+        cur.execute("DELETE FROM Favourites WHERE user_id = %s AND property_id = %s", (user_id, property_id))
+        con.commit()
+        cur.close()
+        con.close()
+        return jsonify({'success': True, 'favourited': False})
+    else:
+        cur.execute("INSERT INTO Favourites (user_id, property_id) VALUES (%s, %s)", (user_id, property_id))
+        con.commit()
+        cur.close()
+        con.close()
+        return jsonify({'success': True, 'favourited': True})
+
+@app.route('/api/favourites/<int:user_id>')
+def get_favourites(user_id):
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("""
+        SELECT p.property_id, p.name, p.location, p.description, p.image_url,
+               COALESCE(r.price, re.monthly_rent, c.price) as price,
+               CASE 
+                   WHEN r.property_id IS NOT NULL THEN 'residential'
+                   WHEN re.property_id IS NOT NULL THEN 'rental'
+                   WHEN c.property_id IS NOT NULL THEN 'commercial'
+               END as type
+        FROM Favourites f
+        JOIN Property p ON f.property_id = p.property_id
+        LEFT JOIN Residential r ON p.property_id = r.property_id
+        LEFT JOIN Rental re ON p.property_id = re.property_id
+        LEFT JOIN Commercial c ON p.property_id = c.property_id
+        WHERE f.user_id = %s
+    """, (user_id,))
+    rows = cur.fetchall()
+    cur.close()
+    con.close()
+    return jsonify(rows)
+
+@app.route('/favourites')
+def favourites_page():
+    return send_from_directory(CLIENT_FOLDER, 'favourites.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
