@@ -6,35 +6,61 @@
   <title>Document</title>
   <link rel="stylesheet" href="/client/properties.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class = "header">
-    <div class = "left-header" onclick="window.location.href='/properties'" style=":hover{cursor:pointer;}" >Homefinder Portal🏠🌀</div>
+  <div class="header">
+    <div class="left-header" onclick="window.location.href='/properties'" style="cursor:pointer;">Homefinder Portal🏠🌀</div>
     <div class="right-header" id="auth-buttons">
       <button class="sign-up-button" onclick="window.location.href='/register'">sign up</button>
       <button class="log-in-button" onclick="window.location.href='/login'">Login</button>
     </div>
-
   </div>
-  <div class = "filter-things-container">
+
+  <div class="filter-things-container">
     <div class="searchbar-container">
       <input class="searchbar" id="search-bar" placeholder="Search for a property">
-      <img src="/client/assets/images/magnifying glass.jpg" class = "magnify-glass-image">
+      <img src="/client/assets/images/magnifying glass.jpg" class="magnify-glass-image">
     </div>
 
-    <div class = "filter-buttons-container">
-      <button class = "filter-buttons selected">Rental</button>
-      <button class = "filter-buttons selected">Residential</button>
-      <button class = "filter-buttons selected">Commercial</button>
-
+    <div class="filter-buttons-container">
+      <button class="filter-buttons selected">Rental</button>
+      <button class="filter-buttons selected">Residential</button>
+      <button class="filter-buttons selected">Commercial</button>
     </div>
-  </div>
-  
 
-  <div class="property-grid" id="property-grid">
+    <select class="filter-buttons" id="sort-select" style="width:200px;">
+      <option value="">Sort by price</option>
+      <option value="asc">Price: Low to High</option>
+      <option value="desc">Price: High to Low</option>
+    </select>
+
+    <select class="filter-buttons" id="price-filter">
+      <option value="">All Prices</option>
+      <option value="0-150000">Up to £150,000</option>
+      <option value="150000-200000">£150,000 - £200,000</option>
+      <option value="200000-500000">£200,000 - £500,000</option>
+      <option value="500000-1000000">£500,000 - £1,000,000</option>
+      <option value="1000000-3000000">£1,000,000 - £3,000,000</option>
+    </select>
+
+    <select class="filter-buttons" id="bedrooms-filter">
+      <option value="">Any Bedrooms</option>
+      <option value="1">1 Bedroom</option>
+      <option value="2">2 Bedrooms</option>
+      <option value="3">3 Bedrooms</option>
+      <option value="4">4+ Bedrooms</option>
+    </select>
+
+    <label class="filter-buttons furnished-label" id="furnished-label">
+      <input type="checkbox" id="furnished-filter">
+      <span class="custom-checkbox"></span>
+      Furnished
+    </label>
   </div>
+
+  <div class="property-grid" id="property-grid"></div>
 
   <script src="/client/properties.js"></script>
 </body>

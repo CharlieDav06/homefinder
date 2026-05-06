@@ -129,3 +129,32 @@ document.getElementById('modal-submit').addEventListener('click', () => {
       alert('Could not connect to server.');
     });
 });
+
+function updateNavbar() {
+    const userId = localStorage.getItem("userId");
+    const firstName = localStorage.getItem("firstName");
+    const role = localStorage.getItem("role");
+
+    if (userId && firstName) {
+        document.getElementById("auth-buttons").innerHTML = `
+            ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Add Property</button>' : ''}
+            <span class="user-greeting">Hi ${firstName}!</span>
+            <button class="log-in-button" onclick="logout()">Logout</button>
+        `;
+    }
+}
+
+function logout() {
+    fetch("http://localhost:5000/api/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: localStorage.getItem("userId") })
+    }).then(() => {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("firstName");
+        localStorage.removeItem("role");
+        window.location.href = "/login";
+    });
+}
+
+updateNavbar();

@@ -16,20 +16,50 @@ fetch('http://localhost:5000/api/properties')
   .catch(err => console.error('Error fetching properties:', err));
 
 function getFilteredProperties() {
-  const query = document.getElementById('search-bar').value.toLowerCase();
+    const query = document.getElementById('search-bar').value.toLowerCase();
+    const sortValue = document.getElementById('sort-select').value;
+    const priceRange = document.getElementById('price-filter').value;
+    const bedroomsFilter = document.getElementById('bedrooms-filter').value;
+    const furnishedFilter = document.getElementById('furnished-filter').checked;
 
-  return allProperties.filter(property => {
-    const name = (property.name || '').toLowerCase();
-    const address = (property.location || '').toLowerCase();
-    const type = property.type;
+    let filtered = allProperties.filter(property => {
+        const name = (property.name || '').toLowerCase();
+        const address = (property.location || '').toLowerCase();
+        const type = property.type;
+        const price = Number(property.price || 0);
+        const bedrooms = Number(property.num_bedrooms || 0);
+        const furnished = property.is_furnished;
 
-    const matchesSearch =
-      name.includes(query) || address.includes(query);
+        const matchesSearch = name.includes(query) || address.includes(query);
+        const matchesFilter = activeFilters.has(type);
 
-    const matchesFilter = activeFilters.has(type);
+        let matchesPrice = true;
+        if (priceRange) {
+            const [min, max] = priceRange.split('-').map(Number);
+            matchesPrice = price >= min && price <= max;
+        }
 
-    return matchesSearch && matchesFilter;
-  });
+        let matchesBedrooms = true;
+        if (bedroomsFilter) {
+            if (bedroomsFilter === '4') {
+                matchesBedrooms = bedrooms >= 4;
+            } else {
+                matchesBedrooms = bedrooms === Number(bedroomsFilter);
+            }
+        }
+
+        const matchesFurnished = !furnishedFilter || furnished;
+
+        return matchesSearch && matchesFilter && matchesPrice && matchesBedrooms && matchesFurnished;
+    });
+
+    if (sortValue === 'asc') {
+        filtered.sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (sortValue === 'desc') {
+        filtered.sort((a, b) => Number(b.price) - Number(a.price));
+    }
+
+    return filtered;
 }
 
 function displayProperties(properties) {
@@ -130,5 +160,11 @@ function logout() {
         window.location.href = "/login";
     });
 }
+
+
+document.getElementById('sort-select').addEventListener('change', () => displayProperties(getFilteredProperties()));
+document.getElementById('price-filter').addEventListener('change', () => displayProperties(getFilteredProperties()));
+document.getElementById('bedrooms-filter').addEventListener('change', () => displayProperties(getFilteredProperties()));
+document.getElementById('furnished-filter').addEventListener('change', () => displayProperties(getFilteredProperties()));
 
 updateNavbar();
