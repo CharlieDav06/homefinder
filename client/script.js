@@ -1,8 +1,6 @@
 const API = "http://localhost:5000/api";
 
-
-function register() {
-
+function registerUser() {
     fetch(API + "/register", {
         method: "POST",
         headers: {
@@ -13,14 +11,19 @@ function register() {
             password: document.getElementById("password").value
         })
     })
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
-
-        document.getElementById("message").innerText = data.message;
+        const msg = document.getElementById("msg");
 
         if (data.success) {
-            window.location.href = "/login";
+            msg.innerText = "Registration successful. You can now log in.";
+        } else {
+            msg.innerText = data.message || "Registration failed.";
         }
+    })
+    .catch(error => {
+        console.error("Register error:", error);
+        document.getElementById("msg").innerText = "Server connection failed.";
     });
 }
 
