@@ -157,7 +157,7 @@ def register_user():
     con = get_db()
     cur = con.cursor()
 
-    cur.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+    cur.execute("SELECT user_id FROM user WHERE email = %s", (email,))
     existing_user = cur.fetchone()
 
     if existing_user:
@@ -171,7 +171,7 @@ def register_user():
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     cur.execute("""
-        INSERT INTO users 
+        INSERT INTO user 
             (email, password, first_name, last_name, phone_number, gdpr_consent_given)
         VALUES (%s, %s, %s, %s, %s, %s)
     """, (
@@ -203,7 +203,7 @@ def login_user():
 
     cur.execute("""
         SELECT user_id, email, password
-        FROM users
+        FROM user
         WHERE email = %s
     """, (email,))
 
