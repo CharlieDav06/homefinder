@@ -1,7 +1,9 @@
 import os
 import bcrypt
 import random
-
+import smtplib
+from datetime import datetime, timedelta
+from email.message import EmailMessage
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -18,7 +20,19 @@ app.config['MYSQL_PASSWORD'] = 'homefinder123'
 app.config['MYSQL_DB'] = 'home_finder_db'
 
 mysql = MySQL(app)
+def send_2fa_email(recipient_email, token):
+    sender_email = "your_email@gmail.com"
+    sender_password = "your_gmail_app_password"
 
+    message = EmailMessage()
+    message["Subject"] = "HomeFinder 2FA Verification Code"
+    message["From"] = sender_email
+    message["To"] = recipient_email
+    message.set_content(f"Your HomeFinder verification code is: {token}")
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(sender_email, sender_password)
+        smtp.send_message(message)
 CLIENT_FOLDER = os.path.join(os.path.dirname(__file__), 'client')
 
 @app.route('/client/<path:filename>')
