@@ -1,23 +1,23 @@
 import os
 import bcrypt
 import random
-
 import pymysql
-pymysql.install_as_MySQLdb()
-
-
-
+import pymysql.cursors
 from flask import Flask, jsonify, send_from_directory, request
 from datetime import datetime, timedelta
-from flask_pymysql import MySQL
+
 app = Flask(__name__)
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'homefinder123'
-app.config['MYSQL_DB'] = 'home_finder_db'
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'homefinder123',
+    'database': 'home_finder_db',
+    'cursorclass': pymysql.cursors.DictCursor
+}
 
-mysql = MySQL(app)
+def get_db():
+    return pymysql.connect(**db_config)
 
 CLIENT_FOLDER = os.path.join(os.path.dirname(__file__), 'client')
 
@@ -31,7 +31,8 @@ def index():
 
 @app.route('/api/properties')
 def get_properties():
-    cur = mysql.connection.cursor()
+    con = get_db()
+    cur = con.cursor()
     cur.execute("""
         SELECT p.property_id, p.name, p.location, p.description, p.image_url,
                COALESCE(r.price, re.monthly_rent, c.price) as price,
@@ -46,13 +47,14 @@ def get_properties():
         LEFT JOIN commercial c ON p.property_id = c.property_id
     """)
     rows = cur.fetchall()
-    columns = [col[0] for col in cur.description]  # ← fix: get column names
     cur.close()
-    return jsonify([dict(zip(columns, row)) for row in rows])  # ← fix: convert to dicts
+    con.close()
+    return jsonify(rows)
 
 @app.route('/api/properties/<int:property_id>')
 def get_property(property_id):
-    cur = mysql.connection.cursor()
+    con = get_db()
+    cur = con.cursor()
     cur.execute("""
         SELECT p.property_id, p.name, p.location, p.description, p.image_url, p.owner_email,
                COALESCE(r.price, re.monthly_rent, c.price) as price,
@@ -62,9 +64,9 @@ def get_property(property_id):
                    WHEN c.property_id IS NOT NULL THEN 'commercial'
                END as type,
                COALESCE(r.num_bedrooms, re.num_bedrooms) AS num_bedrooms,
-               r.is_furnished AS residential_furnished,   -- ← fix: aliased
+               r.is_furnished AS residential_furnished,
                COALESCE(r.num_bathrooms, re.num_bathrooms) AS num_bathrooms,
-               re.is_furnished AS rental_furnished,       -- ← fix: aliased
+               re.is_furnished AS rental_furnished,
                re.is_pet_friendly, re.lease_duration, re.security_deposit,
                c.square_ft, c.floors, c.property_usage, c.has_parking, c.zoning_type
         FROM property p
@@ -73,22 +75,18 @@ def get_property(property_id):
         LEFT JOIN commercial c ON p.property_id = c.property_id
         WHERE p.property_id = %s
     """, (property_id,))
-
     row = cur.fetchone()
-    columns = [col[0] for col in cur.description]
     cur.close()
-
+    con.close()
     if not row:
         return jsonify(None)
-
-    return jsonify(dict(zip(columns, row)))
-
+    return jsonify(row)
 
 @app.route('/api/reservations', methods=['POST'])
 def create_reservation():
     data = request.get_json()
-
-    cur = mysql.connection.cursor()
+    con = get_db()
+    cur = con.cursor()
     cur.execute("""
         INSERT INTO Viewing_Reservation 
           (property_id, user_id, reservation_name, schedule_date, 
@@ -102,199 +100,116 @@ def create_reservation():
         data['reservation_duration'],
         data['reservation_type'],
     ))
-    mysql.connection.commit()
+    con.commit()
     cur.close()
-
-    return jsonify({ 'success': True })
+    con.close()
+    return jsonify({'success': True})
 
 @app.route('/register')
 def register_page():
     return send_from_directory(CLIENT_FOLDER, 'register.html')
 
-
 @app.route('/login')
 def login_page():
     return send_from_directory(CLIENT_FOLDER, 'login.html')
-
 
 @app.route('/twofa')
 def twofa_page():
     return send_from_directory(CLIENT_FOLDER, 'twofa.html')
 
-
 @app.route('/api/register', methods=['POST'])
 def register_user():
     data = request.get_json()
-
     email = data.get('email')
     password = data.get('password')
 
     if not email or not password:
-        return jsonify({
-            'success': False,
-            'message': 'Email and password are required.'
-        }), 400
+        return jsonify({'success': False, 'message': 'Email and password are required.'}), 400
 
-    cur = mysql.connection.cursor()
-
+    con = get_db()
+    cur = con.cursor()
     cur.execute("SELECT user_id FROM user WHERE email = %s", (email,))
     existing_user = cur.fetchone()
 
     if existing_user:
         cur.close()
-        return jsonify({
-            'success': False,
-            'message': 'This email is already registered.'
-        }), 409
+        con.close()
+        return jsonify({'success': False, 'message': 'This email is already registered.'}), 409
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-    cur.execute("""
-        INSERT INTO user (email, password)
-        VALUES (%s, %s)
-    """, (email, hashed_password.decode('utf-8')))
-
-    mysql.connection.commit()
+    cur.execute("INSERT INTO user (email, password) VALUES (%s, %s)", (email, hashed_password.decode('utf-8')))
+    con.commit()
     cur.close()
-
-    return jsonify({
-        'success': True,
-        'message': 'User registered successfully.'
-    })
-
+    con.close()
+    return jsonify({'success': True, 'message': 'User registered successfully.'})
 
 @app.route('/api/login', methods=['POST'])
 def login_user():
     data = request.get_json()
-
     email = data.get('email')
     password = data.get('password')
 
     if not email or not password:
-        return jsonify({
-            'success': False,
-            'message': 'Email and password are required.'
-        }), 400
+        return jsonify({'success': False, 'message': 'Email and password are required.'}), 400
 
-    cur = mysql.connection.cursor()
-
-    cur.execute("""
-        SELECT user_id, email, password
-        FROM user
-        WHERE email = %s
-    """, (email,))
-
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("SELECT user_id, email, password FROM user WHERE email = %s", (email,))
     user = cur.fetchone()
 
     if not user:
         cur.close()
-        return jsonify({
-            'success': False,
-            'message': 'Invalid login details.'
-        }), 401
+        con.close()
+        return jsonify({'success': False, 'message': 'Invalid login details.'}), 401
 
-    user_id = user[0]
-    stored_password = user[2]
-
-    password_matches = bcrypt.checkpw(
-        password.encode('utf-8'),
-        stored_password.encode('utf-8')
-    )
-
-    if not password_matches:
+    if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
         cur.close()
-        return jsonify({
-            'success': False,
-            'message': 'Invalid login details.'
-        }), 401
+        con.close()
+        return jsonify({'success': False, 'message': 'Invalid login details.'}), 401
 
     token = str(random.randint(100000, 999999))
     expires_at = datetime.now() + timedelta(minutes=5)
-
-    cur.execute("""
-        INSERT INTO twofa_tokens (user_id, token, expires_at)
-        VALUES (%s, %s, %s)
-    """, (user_id, token, expires_at))
-
-    mysql.connection.commit()
+    cur.execute("INSERT INTO twofa_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)", (user['user_id'], token, expires_at))
+    con.commit()
     cur.close()
+    con.close()
 
     print("2FA CODE:", token)
-
-    return jsonify({
-        'success': True,
-        'step': '2FA',
-        'userId': user_id,
-        'message': '2FA code generated.'
-    })
-
+    return jsonify({'success': True, 'step': '2FA', 'userId': user['user_id'], 'message': '2FA code generated.'})
 
 @app.route('/api/verify-2fa', methods=['POST'])
 def verify_2fa():
     data = request.get_json()
-
     user_id = data.get('userId')
     token = data.get('token')
 
     if not user_id or not token:
-        return jsonify({
-            'success': False,
-            'message': 'User ID and token are required.'
-        }), 400
+        return jsonify({'success': False, 'message': 'User ID and token are required.'}), 400
 
-    cur = mysql.connection.cursor()
-
+    con = get_db()
+    cur = con.cursor()
     cur.execute("""
-        SELECT token_id, expires_at
-        FROM twofa_tokens
-        WHERE user_id = %s
-          AND token = %s
-          AND used = FALSE
-        ORDER BY token_id DESC
-        LIMIT 1
+        SELECT token_id, expires_at FROM twofa_tokens
+        WHERE user_id = %s AND token = %s AND used = FALSE
+        ORDER BY token_id DESC LIMIT 1
     """, (user_id, token))
-
     record = cur.fetchone()
 
     if not record:
         cur.close()
-        return jsonify({
-            'success': False,
-            'message': 'Invalid 2FA code.'
-        }), 401
+        con.close()
+        return jsonify({'success': False, 'message': 'Invalid 2FA code.'}), 401
 
-    token_id = record[0]
-    expires_at = record[1]
-
-    if datetime.now() > expires_at:
+    if datetime.now() > record['expires_at']:
         cur.close()
-        return jsonify({
-            'success': False,
-            'message': '2FA code has expired.'
-        }), 401
+        con.close()
+        return jsonify({'success': False, 'message': '2FA code has expired.'}), 401
 
-    cur.execute("""
-        UPDATE twofa_tokens
-        SET used = TRUE
-        WHERE token_id = %s
-    """, (token_id,))
-
-    mysql.connection.commit()
+    cur.execute("UPDATE twofa_tokens SET used = TRUE WHERE token_id = %s", (record['token_id'],))
+    con.commit()
     cur.close()
-
-    return jsonify({
-        'success': True,
-        'message': 'Login successful.'
-    })
-
-
-
-
-
-
-
-
-
+    con.close()
+    return jsonify({'success': True, 'message': 'Login successful.'})
 
 if __name__ == '__main__':
     app.run(debug=True)
