@@ -142,16 +142,26 @@ def register_user():
 
     email = data.get('email')
     password = data.get('password')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    phone_number = data.get('phone_number')
+    gdpr_consent_given = data.get('gdpr_consent_given')
 
-    if not email or not password:
+    if not email or not password or not first_name or not last_name or not phone_number:
         return jsonify({
             'success': False,
-            'message': 'Email and password are required.'
+            'message': 'All fields are required.'
+        }), 400
+
+    if gdpr_consent_given is not True:
+        return jsonify({
+            'success': False,
+            'message': 'You must give GDPR consent to register.'
         }), 400
 
     cur = mysql.connection.cursor()
 
-    cur.execute("SELECT user_id FROM user WHERE email = %s", (email,))
+    cur.execute("SELECT user_id FROM users WHERE email = %s", (email,))
     existing_user = cur.fetchone()
 
     if existing_user:
@@ -164,9 +174,17 @@ def register_user():
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     cur.execute("""
-        INSERT INTO user (email, password)
-        VALUES (%s, %s)
-    """, (email, hashed_password.decode('utf-8')))
+        INSERT INTO users 
+            (email, password, first_name, last_name, phone_number, gdpr_consent_given)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (
+        email,
+        hashed_password.decode('utf-8'),
+        first_name,
+        last_name,
+        phone_number,
+        gdpr_consent_given
+    ))
 
     mysql.connection.commit()
     cur.close()
@@ -175,7 +193,6 @@ def register_user():
         'success': True,
         'message': 'User registered successfully.'
     })
-
 
 @app.route('/api/login', methods=['POST'])
 def login_user():
