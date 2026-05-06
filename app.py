@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 def send_2fa_email(recipient_email, token):
     sender_email = "your_email@gmail.com"
-    sender_password = "your_gmail_app_password"
+    sender_password = "hrqy rufc zgoa jdzq"
 
     message = EmailMessage()
     message["Subject"] = "HomeFinder 2FA Verification Code"
