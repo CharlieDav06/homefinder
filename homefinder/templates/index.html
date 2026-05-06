@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}HomeFinder — Find Your Perfect Property{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow">Hampshire &amp; South of England</p>
+    <h1>Find Your <em>Perfect</em> Home</h1>
+    <p class="hero-sub">Browse hundreds of properties for sale and to rent across Hampshire, Portsmouth, Southampton and beyond.</p>
+
+    <form class="hero-search" action="{{ url_for('properties') }}" method="get">
+      <div class="search-row">
+        <select name="type" class="search-select">
+          <option value="">For Sale or Rent</option>
+          <option value="sale">For Sale</option>
+          <option value="rent">To Rent</option>
+        </select>
+        <select name="city" class="search-select">
+          <option value="">Any Location</option>
+          <option>Winchester</option>
+          <option>Southampton</option>
+          <option>Portsmouth</option>
+          <option>Fareham</option>
+          <option>Eastleigh</option>
+          <option>Gosport</option>
+        </select>
+        <select name="beds" class="search-select">
+          <option value="">Any Bedrooms</option>
+          <option value="1">1+ beds</option>
+          <option value="2">2+ beds</option>
+          <option value="3">3+ beds</option>
+          <option value="4">4+ beds</option>
+        </select>
+        <button type="submit" class="btn-primary search-btn">Search Properties</button>
+      </div>
+    </form>
+  </div>
+  <div class="hero-overlay"></div>
+</section>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat"><strong>{{ stats.total }}</strong><span>Properties Listed</span></div>
+  <div class="stat"><strong>{{ stats.for_sale }}</strong><span>For Sale</span></div>
+  <div class="stat"><strong>{{ stats.to_rent }}</strong><span>To Rent</span></div>
+  <div class="stat"><strong>{{ stats.cities }}</strong><span>Cities Covered</span></div>
+</div>
+
+<!-- Featured Properties -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Featured Properties</h2>
+      <a href="{{ url_for('properties') }}" class="see-all">See all →</a>
+    </div>
+    <div class="property-grid">
+      {% for prop in featured %}
+        {% include "_property_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Why HomeFinder -->
+<section class="why-section">
+  <div class="container">
+    <h2 class="text-center">Why HomeFinder?</h2>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">🏡</div>
+        <h3>Curated Listings</h3>
+        <p>Every property is personally verified by our expert agents before it goes live.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">♡</div>
+        <h3>Save Favourites</h3>
+        <p>Build your own shortlist and compare properties side-by-side, even without an account.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">📅</div>
+        <h3>Easy Viewings</h3>
+        <p>Request a viewing directly through the portal and hear back within hours.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">💷</div>
+        <h3>Make an Offer</h3>
+        <p>Submit offers online and track their status through your account dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

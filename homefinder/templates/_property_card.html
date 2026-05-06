@@ -1,0 +1,44 @@
+<article class="property-card" data-id="{{ prop.id }}">
+  <div class="card-img-wrap">
+    <a href="{{ url_for('property_detail', pid=prop.id) }}">
+      <img src="{{ prop.main_image_url or 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600&q=70' }}"
+           alt="{{ prop.title }}" loading="lazy"/>
+    </a>
+    <span class="card-badge badge-{{ prop.listing_type }}">
+      {% if prop.listing_type == 'sale' %}For Sale{% else %}To Rent{% endif %}
+    </span>
+    {% if prop.status == 'under_offer' %}
+      <span class="card-badge badge-offer">Under Offer</span>
+    {% endif %}
+    {% if prop.is_new_build %}
+      <span class="card-badge badge-new">New Build</span>
+    {% endif %}
+    <button class="heart-btn {% if prop.id in fav_ids %}active{% endif %}"
+            data-id="{{ prop.id }}"
+            aria-label="Save to favourites"
+            title="Save to favourites">
+      {% if prop.id in fav_ids %}♥{% else %}♡{% endif %}
+    </button>
+  </div>
+
+  <div class="card-body">
+    <div class="card-price">
+      {% if prop.listing_type == 'rent' %}
+        {{ prop.price | monthly }}
+      {% else %}
+        {{ prop.price | currency }}
+      {% endif %}
+    </div>
+    <h3 class="card-title">
+      <a href="{{ url_for('property_detail', pid=prop.id) }}">{{ prop.title }}</a>
+    </h3>
+    <p class="card-location">📍 {{ prop.address_line1 }}, {{ prop.city }}</p>
+    <div class="card-specs">
+      <span title="Bedrooms">🛏 {{ prop.bedrooms }} bed</span>
+      <span title="Bathrooms">🚿 {{ prop.bathrooms }} bath</span>
+      <span title="Type" class="prop-type-pill">{{ prop.property_type | title }}</span>
+      {% if prop.has_garden %}<span title="Garden">🌿 Garden</span>{% endif %}
+      {% if prop.has_parking %}<span title="Parking">🚗 Parking</span>{% endif %}
+    </div>
+  </div>
+</article>

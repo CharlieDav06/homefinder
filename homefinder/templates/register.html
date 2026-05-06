@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Create Account — HomeFinder{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Create Your Account</h1>
+    <p class="auth-sub">Register to save properties, submit offers, and track enquiries.</p>
+    <form method="post">
+      <div class="form-2col">
+        <div class="form-row">
+          <label>First Name *</label>
+          <input type="text" name="first_name" required placeholder="Jane"/>
+        </div>
+        <div class="form-row">
+          <label>Last Name *</label>
+          <input type="text" name="last_name" required placeholder="Smith"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Email Address *</label>
+        <input type="email" name="email" required placeholder="jane@example.com"/>
+      </div>
+      <div class="form-row">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" placeholder="07700 900000"/>
+      </div>
+      <div class="form-row">
+        <label>Password *</label>
+        <input type="password" name="password" required placeholder="Choose a secure password" minlength="6"/>
+      </div>
+      <button type="submit" class="btn-primary full-width">Create Account</button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}

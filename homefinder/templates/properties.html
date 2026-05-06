@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Browse Properties — HomeFinder{% endblock %}
+{% block content %}
+
+<div class="browse-layout">
+  <!-- ── Sidebar Filters ──────────────────────────────────── -->
+  <aside class="filter-sidebar">
+    <form method="get" action="{{ url_for('properties') }}" id="filterForm">
+      <div class="filter-header">
+        <h3>Filter Properties</h3>
+        <a href="{{ url_for('properties') }}" class="clear-link">Clear all</a>
+      </div>
+
+      <div class="filter-group">
+        <label>Listing Type</label>
+        <div class="toggle-row">
+          <label class="toggle-opt {% if not filters.get('type') %}sel{% endif %}">
+            <input type="radio" name="type" value=""> All </label>
+          <label class="toggle-opt {% if filters.get('type')=='sale' %}sel{% endif %}">
+            <input type="radio" name="type" value="sale" {% if filters.get('type')=='sale' %}checked{% endif %}> Sale </label>
+          <label class="toggle-opt {% if filters.get('type')=='rent' %}sel{% endif %}">
+            <input type="radio" name="type" value="rent" {% if filters.get('type')=='rent' %}checked{% endif %}> Rent </label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="city">Location</label>
+        <select name="city" id="city">
+          <option value="">Any location</option>
+          {% for c in cities %}
+            <option value="{{ c }}" {% if filters.get('city')==c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="prop">Property Type</label>
+        <select name="prop" id="prop">
+          <option value="">Any type</option>
+          {% for t in ['detached','semi-detached','terraced','flat','bungalow','cottage'] %}
+            <option value="{{ t }}" {% if filters.get('prop')==t %}selected{% endif %}>{{ t | title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="beds">Min Bedrooms</label>
+        <select name="beds" id="beds">
+          <option value="">Any</option>
+          {% for n in [1,2,3,4,5] %}
+            <option value="{{ n }}" {% if filters.get('beds')|string == n|string %}selected{% endif %}>{{ n }}+ bed</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Price Range</label>
+        <div class="price-row">
+          <input type="number" name="min" placeholder="Min £"
+                 value="{{ filters.get('min','') }}" step="10000"/>
+          <span>–</span>
+          <input type="number" name="max" placeholder="Max £"
+                 value="{{ filters.get('max','') }}" step="10000"/>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="sort">Sort By</label>
+        <select name="sort" id="sort">
+          <option value="newest"     {% if filters.get('sort','newest')=='newest'     %}selected{% endif %}>Newest first</option>
+          <option value="price_asc"  {% if filters.get('sort')=='price_asc'           %}selected{% endif %}>Price: low–high</option>
+          <option value="price_desc" {% if filters.get('sort')=='price_desc'          %}selected{% endif %}>Price: high–low</option>
+          <option value="beds_desc"  {% if filters.get('sort')=='beds_desc'           %}selected{% endif %}>Most bedrooms</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary full-width">Apply Filters</button>
+    </form>
+  </aside>
+
+  <!-- ── Results ─────────────────────────────────────────── -->
+  <div class="results-panel">
+    <div class="results-header">
+      <p class="results-count"><strong>{{ total }}</strong> propert{{ 'y' if total==1 else 'ies' }} found</p>
+    </div>
+
+    {% if properties %}
+      <div class="property-grid">
+        {% for prop in properties %}
+          {% include "_property_card.html" %}
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if pages > 1 %}
+        <nav class="pagination">
+          {% if page > 1 %}
+            <a href="?{{ filters | urlencode }}&page={{ page-1 }}" class="page-btn">← Prev</a>
+          {% endif %}
+          {% for p in range(1, pages+1) %}
+            <a href="?{{ filters | urlencode }}&page={{ p }}"
+               class="page-btn {% if p==page %}active{% endif %}">{{ p }}</a>
+          {% endfor %}
+          {% if page < pages %}
+            <a href="?{{ filters | urlencode }}&page={{ page+1 }}" class="page-btn">Next →</a>
+          {% endif %}
+        </nav>
+      {% endif %}
+
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🏠</div>
+        <h3>No properties found</h3>
+        <p>Try adjusting your filters or <a href="{{ url_for('properties') }}">clear all</a> to see everything.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

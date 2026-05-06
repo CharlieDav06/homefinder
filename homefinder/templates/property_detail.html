@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}{{ prop.title }} — HomeFinder{% endblock %}
+{% block content %}
+
+<div class="detail-layout container">
+
+  <!-- ── Image Gallery ──────────────────────────────────── -->
+  <div class="gallery">
+    <div class="gallery-main">
+      <img src="{{ prop.main_image_url or 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=900' }}"
+           alt="{{ prop.title }}" id="mainImg"/>
+    </div>
+    {% if images %}
+    <div class="gallery-thumbs">
+      {% for img in images %}
+        <img src="{{ img.image_url }}" alt="{{ img.caption }}"
+             class="thumb" onclick="document.getElementById('mainImg').src=this.src"/>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Main Info ───────────────────────────────────────── -->
+  <div class="detail-main">
+    <div class="detail-title-row">
+      <div>
+        <div class="detail-badges">
+          <span class="badge badge-{{ prop.listing_type }}">
+            {% if prop.listing_type=='sale' %}For Sale{% else %}To Rent{% endif %}
+          </span>
+          {% if prop.status=='under_offer' %}<span class="badge badge-offer">Under Offer</span>{% endif %}
+          {% if prop.is_new_build %}<span class="badge badge-new">New Build</span>{% endif %}
+          <span class="badge badge-type">{{ prop.property_type | title }}</span>
+        </div>
+        <h1 class="detail-title">{{ prop.title }}</h1>
+        <p class="detail-location">📍 {{ prop.address_line1 }}{% if prop.address_line2 %}, {{ prop.address_line2 }}{% endif %}, {{ prop.city }}, {{ prop.postcode }}</p>
+      </div>
+      <div class="detail-price-block">
+        <div class="detail-price">
+          {% if prop.listing_type=='rent' %}
+            {{ prop.price | monthly }}
+          {% else %}
+            {{ prop.price | currency }}
+          {% endif %}
+        </div>
+        <button class="heart-btn-lg {% if is_fav %}active{% endif %}" data-id="{{ prop.id }}" id="detailHeart">
+          {% if is_fav %}♥ Saved{% else %}♡ Save{% endif %}
+        </button>
+      </div>
+    </div>
+
+    <!-- Specs strip -->
+    <div class="spec-strip">
+      <div class="spec"><span>🛏</span><strong>{{ prop.bedrooms }}</strong><small>Bedrooms</small></div>
+      <div class="spec"><span>🚿</span><strong>{{ prop.bathrooms }}</strong><small>Bathrooms</small></div>
+      {% if prop.reception_rooms %}<div class="spec"><span>🛋</span><strong>{{ prop.reception_rooms }}</strong><small>Receptions</small></div>{% endif %}
+      {% if prop.square_footage %}<div class="spec"><span>📐</span><strong>{{ prop.square_footage }}</strong><small>sq ft</small></div>{% endif %}
+      <div class="spec"><span>🔋</span><strong class="epc-{{ prop.energy_rating }}">{{ prop.energy_rating }}</strong><small>EPC Rating</small></div>
+    </div>
+
+    <!-- Description -->
+    <div class="detail-section">
+      <h2>About this property</h2>
+      <p class="detail-desc">{{ prop.description }}</p>
+    </div>
+
+    <!-- Features -->
+    {% if features %}
+    <div class="detail-section">
+      <h2>Key Features</h2>
+      <ul class="features-list">
+        {% for f in features %}
+          <li>✓ {{ f.feature }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Amenities -->
+    <div class="detail-section">
+      <h2>Property Details</h2>
+      <div class="amenities-grid">
+        <div class="amenity {% if prop.has_garden %}yes{% else %}no{% endif %}">
+          🌿 Garden {% if not prop.has_garden %}(none){% endif %}
+        </div>
+        <div class="amenity {% if prop.has_parking %}yes{% else %}no{% endif %}">
+          🚗 Parking {% if not prop.has_parking %}(none){% endif %}
+        </div>
+        <div class="amenity {% if prop.has_garage %}yes{% else %}no{% endif %}">
+          🏠 Garage {% if not prop.has_garage %}(none){% endif %}
+        </div>
+        <div class="amenity {% if prop.is_new_build %}yes{% else %}no{% endif %}">
+          🔑 {% if prop.is_new_build %}New Build{% else %}Existing Property{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent -->
+    {% if prop.agent_name %}
+    <div class="detail-section agent-card">
+      <img src="{{ prop.agent_photo or 'https://via.placeholder.com/60' }}" alt="{{ prop.agent_name }}" class="agent-avatar"/>
+      <div>
+        <p class="agent-label">Your Local Expert</p>
+        <h3>{{ prop.agent_name }}</h3>
+        <p class="agent-contact">📧 {{ prop.agent_email }} &nbsp;|&nbsp; 📞 {{ prop.agent_phone }}</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="detail-sidebar">
+
+    <!-- Enquiry form -->
+    <div class="sidebar-card">
+      <h3>Enquire About This Property</h3>
+      <form method="post" action="{{ url_for('enquire', pid=prop.id) }}">
+        <div class="form-row">
+          <label>Your Name *</label>
+          <input type="text" name="name"
+                 value="{{ current_user.first_name ~ ' ' ~ current_user.last_name if current_user else '' }}" required/>
+        </div>
+        <div class="form-row">
+          <label>Email Address *</label>
+          <input type="email" name="email"
+                 value="{{ current_user.email if current_user else '' }}" required/>
+        </div>
+        <div class="form-row">
+          <label>Phone Number</label>
+          <input type="tel" name="phone"
+                 value="{{ current_user.phone if current_user else '' }}"/>
+        </div>
+        <div class="form-row">
+          <label>Enquiry Type</label>
+          <select name="enquiry_type">
+            <option value="viewing">Request a Viewing</option>
+            <option value="general">General Enquiry</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Message *</label>
+          <textarea name="message" rows="4" required
+                    placeholder="I'm interested in this property and would like to..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary full-width">Send Enquiry</button>
+      </form>
+    </div>
+
+    <!-- Offer form (logged-in only) -->
+    {% if prop.listing_type == 'sale' %}
+    <div class="sidebar-card">
+      <h3>Make an Offer</h3>
+      {% if current_user %}
+        <form method="post" action="{{ url_for('make_offer', pid=prop.id) }}">
+          <div class="form-row">
+            <label>Your Offer Amount (£) *</label>
+            <input type="number" name="amount" placeholder="{{ prop.price | int }}" step="500" required/>
+          </div>
+          <div class="form-row">
+            <label>Message to Agent</label>
+            <textarea name="message" rows="2" placeholder="Any additional notes..."></textarea>
+          </div>
+          <button type="submit" class="btn-secondary full-width">Submit Offer</button>
+        </form>
+      {% else %}
+        <p class="sidebar-hint">
+          <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">register</a> to submit an offer.
+        </p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Mortgage calc -->
+    {% if prop.listing_type == 'sale' %}
+    <div class="sidebar-card">
+      <h3>Mortgage Estimator</h3>
+      <div class="mortgage-calc">
+        <p class="mortgage-price">Purchase: <strong>{{ prop.price | currency }}</strong></p>
+        <div class="form-row">
+          <label>Deposit (%)</label>
+          <input type="range" id="depositSlider" min="5" max="40" value="10" step="5"/>
+          <span id="depositLabel">10% — {{ (prop.price * 0.10) | int | currency }}</span>
+        </div>
+        <div class="form-row">
+          <label>Mortgage Term (years)</label>
+          <input type="range" id="termSlider" min="10" max="35" value="25" step="5"/>
+          <span id="termLabel">25 years</span>
+        </div>
+        <div class="mortgage-result">
+          <p>Est. monthly payment</p>
+          <strong id="monthlyPayment">—</strong>
+          <small>Based on ~4.5% interest rate. This is an estimate only.</small>
+        </div>
+      </div>
+      <script>
+        (function(){
+          const price={{prop.price}};
+          function calc(){
+            const dep=document.getElementById('depositSlider').value/100;
+            const yr=parseInt(document.getElementById('termSlider').value);
+            const loan=price*(1-dep);
+            const r=0.045/12,n=yr*12;
+            const m=loan*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+            document.getElementById('depositLabel').textContent=
+              document.getElementById('depositSlider').value+'% — £'+(price*dep).toLocaleString('en-GB',{maximumFractionDigits:0});
+            document.getElementById('termLabel').textContent=yr+' years';
+            document.getElementById('monthlyPayment').textContent=
+              '£'+m.toLocaleString('en-GB',{maximumFractionDigits:0})+' / month';
+          }
+          document.getElementById('depositSlider').addEventListener('input',calc);
+          document.getElementById('termSlider').addEventListener('input',calc);
+          calc();
+        })();
+      </script>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+
+<!-- ── Similar Properties ──────────────────────────────────── -->
+{% if similar %}
+<section class="section" style="background:var(--bg-light)">
+  <div class="container">
+    <h2>Similar Properties in {{ prop.city }}</h2>
+    <div class="property-grid">
+      {% for prop in similar %}{% include "_property_card.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
