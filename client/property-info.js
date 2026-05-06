@@ -75,6 +75,9 @@ fetch(`http://localhost:5000/api/properties/${propertyId}`)
 
 
 
+
+  
+
   // Open modal
 document.querySelector('.book-button').addEventListener('click', () => {
   document.getElementById('modal-overlay').classList.add('active');
