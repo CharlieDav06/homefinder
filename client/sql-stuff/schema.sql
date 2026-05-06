@@ -3,7 +3,7 @@ CREATE TABLE User (
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) 
+  password VARCHAR(255) NOT NULL, 
   phone_number VARCHAR(20),
   gdpr_consent_given BOOLEAN NOT NULL
 );

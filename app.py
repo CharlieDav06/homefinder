@@ -1,9 +1,9 @@
 import os
 import bcrypt
 import random
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
+from datetime import datetime, timedelta
 from flask_mysqldb import MySQL
-
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
@@ -131,7 +131,7 @@ def register_user():
 
     cur = mysql.connection.cursor()
 
-    cur.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+    cur.execute("SELECT user_id FROM user WHERE email = %s", (email,))
     existing_user = cur.fetchone()
 
     if existing_user:
@@ -144,7 +144,7 @@ def register_user():
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     cur.execute("""
-        INSERT INTO users (email, password)
+        INSERT INTO user (email, password)
         VALUES (%s, %s)
     """, (email, hashed_password.decode('utf-8')))
 
@@ -174,7 +174,7 @@ def login_user():
 
     cur.execute("""
         SELECT user_id, email, password
-        FROM users
+        FROM user
         WHERE email = %s
     """, (email,))
 
