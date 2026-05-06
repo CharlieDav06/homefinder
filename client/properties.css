@@ -213,3 +213,41 @@ body {
   cursor: pointer;
 }
 
+.furnished-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.furnished-label input {
+  display: none;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgb(211, 211, 211);
+  border-radius: 4px;
+  display: inline-block;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.furnished-label input:checked + .custom-checkbox {
+  background-color: rgb(5, 150, 105);
+  border: none;
+}
+
+.furnished-label input:checked + .custom-checkbox::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}

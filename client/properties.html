@@ -11,7 +11,7 @@
 </head>
 <body>
   <div class = "header">
-    <div class = "left-header">Homefinder Portal🏠🌀</div>
+    <div class = "left-header" onclick="window.location.href='/properties'" style="cursor:pointer;">Homefinder Portal🏠🌀</div>
     <div class = "right-header">
       <button class = "sign-up-button" onclick = "window.location.href='/register'">sign up</button>
       <button class = "log-in-button" onclick = "window.location.href='/login'">Login</button>
@@ -30,6 +30,41 @@
       <button class = "filter-buttons selected">Commercial</button>
 
     </div>
+
+
+
+    <select class="filter-buttons" id="sort-select" style="width:200px;">
+     <option value="">Sort by price</option>
+     <option value="asc">Price: Low to High</option>
+     <option value="desc">Price: High to Low</option>
+    </select>
+
+
+
+
+
+    <select class="filter-buttons" id="price-filter">
+      <option value="">All Prices</option>
+      <option value="0-150000">Up to £150,000</option>
+      <option value="150000-200000">£150,000 - £200,000</option>
+      <option value="200000-500000">£200,000 - £500,000</option>
+      <option value="500000-1000000">£500,000 - £1,000,000</option>
+      <option value="1000000-3000000">£1,000,000 - £3,000,000</option>
+     </select>
+
+    <select class="filter-buttons" id="bedrooms-filter">
+      <option value="">Any Bedrooms</option>
+      <option value="1">1 Bedroom</option>
+      <option value="2">2 Bedrooms</option>
+      <option value="3">3 Bedrooms</option>
+      <option value="4">4+ Bedrooms</option>
+    </select>
+
+<label class="filter-buttons furnished-label" id="furnished-label">
+  <input type="checkbox" id="furnished-filter">
+  <span class="custom-checkbox"></span>
+  Furnished
+</label>
   </div>
   
 

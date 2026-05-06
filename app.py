@@ -40,7 +40,9 @@ def get_properties():
                    WHEN r.property_id IS NOT NULL THEN 'residential'
                    WHEN re.property_id IS NOT NULL THEN 'rental'
                    WHEN c.property_id IS NOT NULL THEN 'commercial'
-               END as type
+               END as type,
+               COALESCE(r.num_bedrooms, re.num_bedrooms) AS num_bedrooms,
+               COALESCE(r.is_furnished, re.is_furnished) AS is_furnished
         FROM property p
         LEFT JOIN residential r ON p.property_id = r.property_id
         LEFT JOIN rental re ON p.property_id = re.property_id

@@ -11,19 +11,49 @@ fetch('http://localhost:5000/api/properties')
 
 function getFilteredProperties() {
   const query = document.getElementById('search-bar').value.toLowerCase();
+  const sortOrder = document.getElementById('sort-select').value;
+  const priceRange = document.getElementById('price-filter').value;
+  const bedroomsFilter = document.getElementById('bedrooms-filter').value;
+  const furnishedOnly = document.getElementById('furnished-filter').checked;
 
-  return allProperties.filter(property => {
+  let filtered = allProperties.filter(property => {
     const name = (property.name || '').toLowerCase();
     const address = (property.location || '').toLowerCase();
     const type = property.type;
+    const price = Number(property.price || 0);
+    const bedrooms = Number(property.num_bedrooms || 0);
+    const furnished = property.is_furnished;
 
-    const matchesSearch =
-      name.includes(query) || address.includes(query);
-
+    const matchesSearch = name.includes(query) || address.includes(query);
     const matchesFilter = activeFilters.has(type);
 
-    return matchesSearch && matchesFilter;
+    let matchesPrice = true;
+    if (priceRange) {
+      const [min, max] = priceRange.split('-').map(Number);
+      matchesPrice = price >= min && price <= max;
+    }
+
+    let matchesBedrooms = true;
+    if (bedroomsFilter) {
+      if (bedroomsFilter === '4') {
+        matchesBedrooms = bedrooms >= 4;
+      } else {
+        matchesBedrooms = bedrooms === Number(bedroomsFilter);
+      }
+    }
+
+    const matchesFurnished = furnishedOnly ? furnished : true;
+
+    return matchesSearch && matchesFilter && matchesPrice && matchesBedrooms && matchesFurnished;
   });
+
+  if (sortOrder === 'asc') {
+    filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+  } else if (sortOrder === 'desc') {
+    filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+  }
+
+  return filtered;
 }
 
 function displayProperties(properties) {
@@ -99,3 +129,20 @@ document.querySelectorAll('.filter-buttons').forEach(btn => {
 function goToProperty(id) {
   window.location.href = `/client/property-info.html?id=${id}`;
 }
+
+document.getElementById('sort-select').addEventListener('change', () => {
+  displayProperties(getFilteredProperties());
+});
+
+
+document.getElementById('price-filter').addEventListener('change', () => {
+  displayProperties(getFilteredProperties());
+});
+
+document.getElementById('bedrooms-filter').addEventListener('change', () => {
+  displayProperties(getFilteredProperties());
+});
+
+document.getElementById('furnished-filter').addEventListener('change', () => {
+  displayProperties(getFilteredProperties());
+});
