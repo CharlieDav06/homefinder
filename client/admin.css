@@ -1,0 +1,74 @@
+.admin-container {
+    max-width: 700px;
+    margin: 50px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.1);
+}
+
+.admin-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    color: rgb(31, 41, 55);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: rgb(31, 41, 55);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid rgb(209, 213, 219);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+}
+
+.form-group textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.submit-button {
+    background-color: rgb(5, 150, 105);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.submit-button:hover {
+    opacity: 0.8;
+}
+
+#admin-msg {
+    margin-top: 15px;
+    color: rgb(5, 150, 105);
+    font-weight: 600;
+}
+
+button:hover{
+  cursor:pointer;
+}

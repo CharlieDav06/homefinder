@@ -9,6 +9,7 @@ from flask import Flask, jsonify, send_from_directory, request
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
 def send_2fa_email(recipient_email, token):
     sender_email = "kaellion9812@gmail.com"
     sender_password = "hrqy rufc zgoa jdzq"
@@ -22,6 +23,7 @@ def send_2fa_email(recipient_email, token):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(sender_email, sender_password)
         smtp.send_message(message)
+
 db_config = {
     'host': 'localhost',
     'user': 'root',
@@ -191,6 +193,7 @@ def register_user():
         'success': True,
         'message': 'User registered successfully.'
     })
+
 @app.route('/api/login', methods=['POST'])
 def login_user():
     data = request.get_json()
@@ -215,7 +218,6 @@ def login_user():
         return jsonify({'success': False, 'message': 'Invalid login details.'}), 401
 
     user_id = user['user_id']
-    stored_email = user['email']
     stored_password = user['password']
 
     if not bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
@@ -235,7 +237,7 @@ def login_user():
     cur.close()
     con.close()
 
-    
+    send_2fa_email(email, token)
 
     return jsonify({
         'success': True,
@@ -243,6 +245,8 @@ def login_user():
         'userId': user_id,
         'message': '2FA code sent to your email.'
     })
+
+@app.route('/api/verify-2fa', methods=['POST'])
 @app.route('/api/verify-2fa', methods=['POST'])
 def verify_2fa():
     data = request.get_json()
@@ -273,10 +277,100 @@ def verify_2fa():
 
     cur.execute("UPDATE twofa_tokens SET used = TRUE WHERE token_id = %s", (record['token_id'],))
     con.commit()
+
+    ip_address = request.remote_addr
+    cur.execute("""
+        INSERT INTO Session (user_id, session_start_time, last_input_time, ip_address, is_active)
+        VALUES (%s, %s, %s, %s, TRUE)
+    """, (user_id, datetime.now(), datetime.now(), ip_address))
+    con.commit()
+
+    cur.execute("SELECT first_name FROM user WHERE user_id = %s", (user_id,))
+    user = cur.fetchone()
+
+    cur.execute("SELECT * FROM Admin WHERE user_id = %s", (user_id,))
+    admin = cur.fetchone()
+    role = 'admin' if admin else 'user'
+
     cur.close()
     con.close()
-    return jsonify({'success': True, 'message': 'Login successful.'})
+
+    return jsonify({
+        'success': True,
+        'message': 'Login successful.',
+        'firstName': user['first_name'],
+        'role': role
+    })
+
+
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    data = request.get_json()
+    user_id = data.get('userId')
+
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("""
+        UPDATE Session SET is_active = FALSE
+        WHERE user_id = %s AND is_active = TRUE
+    """, (user_id,))
+    con.commit()
+    cur.close()
+    con.close()
+
+    return jsonify({'success': True})
+
+
+
+
+@app.route('/admin')
+def admin_page():
+    return send_from_directory(CLIENT_FOLDER, 'admin.html')
+
+@app.route('/api/admin/add-property', methods=['POST'])
+def add_property():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    prop_type = data.get('type')
+
+    con = get_db()
+    cur = con.cursor()
+
+    cur.execute("""
+        INSERT INTO Property (user_id, name, location, description, image_url)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (user_id, data['name'], data['location'], data['description'], data['image_url']))
+    con.commit()
+
+    property_id = cur.lastrowid
+
+    if prop_type == 'residential':
+        cur.execute("""
+            INSERT INTO Residential (property_id, num_bedrooms, num_bathrooms, is_furnished, price)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (property_id, data['num_bedrooms'], data['num_bathrooms'], data['is_furnished'], data['price']))
+
+    elif prop_type == 'rental':
+        cur.execute("""
+            INSERT INTO Rental (property_id, num_bedrooms, num_bathrooms, monthly_rent, security_deposit, lease_duration, is_pet_friendly, lease_terms, is_furnished)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (property_id, data['num_bedrooms'], data['num_bathrooms'], data['monthly_rent'],
+              data['security_deposit'], data['lease_duration'], data['is_pet_friendly'],
+              data['lease_terms'], data['is_furnished']))
+
+    elif prop_type == 'commercial':
+        cur.execute("""
+            INSERT INTO Commercial (property_id, square_ft, floors, property_usage, has_parking, zoning_type, price)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (property_id, data['square_ft'], data['floors'], data['property_usage'],
+              data['has_parking'], data['zoning_type'], data['price']))
+
+    con.commit()
+    cur.close()
+    con.close()
+
+    return jsonify({'success': True, 'message': 'Property added successfully!'})
 
 if __name__ == '__main__':
     app.run(debug=True)
-    

@@ -1,25 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login - HomeFinder</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - HomeFinder</title>
+  <link rel="stylesheet" href="/client/properties.css">
+  <link rel="stylesheet" href="/client/login.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <h1>Login</h1>
+  <div class="header">
+    <div class="left-header" onclick="window.location.href='/properties'">Homefinder Portal🏠🌀</div>
+    <div class="right-header">
+      <button class="sign-up-button" onclick="window.location.href='/register'">Sign Up</button>
+    </div>
+  </div>
 
-    <input type="email" id="email" placeholder="Email">
-    <br><br>
+  <div class="auth-container">
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-subtitle">Log in to your HomeFinder account</p>
 
-    <input type="password" id="password" placeholder="Password">
-    <br><br>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com">
+    </div>
 
-    <button onclick="login()">Login</button>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••">
+    </div>
 
-    <p id="message"></p>
+    <button class="auth-button" onclick="login()">Login</button>
 
-    <a href="/register">Create Account</a>
+    <p id="message" class="auth-msg"></p>
 
-    <script src="/client/script.js"></script>
+    <p class="auth-switch">Don't have an account? <a href="/register">Sign up</a></p>
+  </div>
 
+  <script src="/client/script.js"></script>
 </body>
 </html>

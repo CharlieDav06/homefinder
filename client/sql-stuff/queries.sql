@@ -1,54 +1,21 @@
-
--- @block
-
-SET FOREIGN_KEY_CHECKS = 0;
-
-DROP TABLE IF EXISTS property;
-
-SET FOREIGN_KEY_CHECKS = 1;
+ALTER TABLE user MODIFY COLUMN phone_number VARCHAR(20) NULL DEFAULT NULL;
+ALTER TABLE user MODIFY COLUMN gdpr_consent_given BOOLEAN NULL DEFAULT NULL;
 
 
 -- @block
-SELECT * FROM property;
+SELECT * FROM residential;
 
 -- @block
-DELETE FROM Residential WHERE property_id = 4;
+ALTER TABLE Session DROP FOREIGN KEY session_ibfk_2;
+ALTER TABLE Session DROP COLUMN auth_id;
 
 -- @block
-SELECT * FROM commercial;
-
--- @block
-SELECT * FROM commercial;
-
--- @block
-SELECT * FROM rental;
-
-
--- @block
-ALTER TABLE Property ADD COLUMN owner_email VARCHAR(100)
+SELECT * FROM Session;
 
 
 
 -- @block
-DELETE FROM Residential;
-DELETE FROM Rental;
-DELETE FROM Commercial;
-DELETE FROM Property;
-ALTER TABLE property AUTO_INCREMENT = 1;
+INSERT INTO Admin (user_id, admin_level, permissions) 
+VALUES (18, 1, 'all');
 
 
--- @block
-DROP TABLE Residential;
-DROP TABLE Rental;
-DROP TABLE Commercial;
-DROP TABLE Property;
-
--- @block
-ALTER TABLE Residential MODIFY COLUMN price INT NOT NULL;
-ALTER TABLE Commercial MODIFY COLUMN price INT NOT NULL;
-
-
-
-
--- @block
-SELECT * from viewing_reservation;

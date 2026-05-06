@@ -13,30 +13,20 @@ CREATE TABLE AuthService (
   user_id INT NOT NULL,
   max_login_attempts INT NOT NULL,
   token_expiry_time INT NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES 'User'(user_id)
+  FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
-CREATE TABLE '2FA' (
-  auth_id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  token_value VARCHAR(10) NOT NULL,
-  time_created DATETIME NOT NULL,
-  is_used BOOLEAN NOT NULL,
-  retry_count INT NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES User(user_id),
-  FOREIGN KEY (auth_id) REFERENCES AuthService(auth_id)
-);
+
 
 CREATE TABLE Session (
   session_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
-  auth_id INT NOT NULL,
   session_start_time DATETIME NOT NULL,
   last_input_time DATETIME,
   ip_address VARCHAR(45),
   is_active BOOLEAN NOT NULL,
   FOREIGN KEY (user_id) REFERENCES User(user_id),
-  FOREIGN KEY (auth_id) REFERENCES AuthService(auth_id)
+  
 );
 
 CREATE TABLE Admin (
@@ -111,26 +101,11 @@ CREATE TABLE Rental (
   FOREIGN KEY (property_id) REFERENCES Property(property_id)
 );
 CREATE TABLE twofa_tokens (
-    token_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    token VARCHAR(10) NOT NULL,
-    expires_at DATETIME NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-
-    CONSTRAINT fk_twofa_user
-    FOREIGN KEY (user_id)
-    REFERENCES users(user_id)
-    ON DELETE CASCADE
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    token VARCHAR(10),
+    expires_at DATETIME,
+    used BOOLEAN DEFAULT FALSE
+    FOREIGN KEY (user_id) REFERENCES User(user_id);
 );
-CREATE TABLE IF NOT EXISTS twofa_tokens (
-    token_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    token VARCHAR(10) NOT NULL,
-    expires_at DATETIME NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-  
-    CONSTRAINT fk_twofa_user
-    FOREIGN KEY (user_id)
-    REFERENCES users(user_id)
-    ON DELETE CASCADE
+

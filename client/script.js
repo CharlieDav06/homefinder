@@ -81,7 +81,6 @@ function login() {
 
 
 function verify2FA() {
-
     fetch(API + "/verify-2fa", {
         method: "POST",
         headers: {
@@ -94,15 +93,22 @@ function verify2FA() {
     })
     .then(res => res.json())
     .then(data => {
-
         if (data.success) {
-
+            localStorage.setItem("firstName", data.firstName);
             window.location.href = "/properties";
-
         } else {
-
             document.getElementById("message").innerText =
                 data.message || "Invalid code";
         }
+    localStorage.setItem("role", data.role);
+
     });
+
+
+
+    if (data.success) {
+    localStorage.setItem("firstName", data.firstName);
+    localStorage.setItem("role", data.role);
+    window.location.href = "/properties";
+}
 }

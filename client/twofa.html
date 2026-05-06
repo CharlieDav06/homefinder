@@ -1,20 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>2FA Verification - HomeFinder</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2FA Verification - HomeFinder</title>
+  <link rel="stylesheet" href="/client/properties.css">
+  <link rel="stylesheet" href="/client/login.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <h1>Enter 2FA Code</h1>
+  <div class="header">
+    <div class="left-header" onclick="window.location.href='/properties'">Homefinder Portal🏠🌀</div>
+  </div>
 
-    <input type="text" id="token" placeholder="6-digit code">
-    <br><br>
+  <div class="auth-container">
+    <h1 class="auth-title">Two-Factor Authentication</h1>
+    <p class="auth-subtitle">We sent a 6-digit code to your email. Enter it below to continue.</p>
 
-    <button onclick="verify2FA()">Verify</button>
+    <div class="form-group">
+      <label>Verification Code</label>
+      <input type="text" id="token" placeholder="e.g. 123456" maxlength="6">
+    </div>
 
-    <p id="message"></p>
+    <button class="auth-button" onclick="verify2FA()">Verify</button>
 
-    <script src="/client/script.js"></script>
+    <p id="message" class="auth-msg"></p>
 
+    <p class="auth-switch">Wrong account? <a href="/login">Go back</a></p>
+  </div>
+
+  <script src="/client/script.js"></script>
 </body>
 </html>

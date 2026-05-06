@@ -1,3 +1,9 @@
+
+const API = "http://localhost:5000/api";
+
+
+
+
 let allProperties = [];
 let activeFilters = new Set(['rental', 'residential', 'commercial']); // all on by default
 
@@ -99,3 +105,30 @@ document.querySelectorAll('.filter-buttons').forEach(btn => {
 function goToProperty(id) {
   window.location.href = `/client/property-info.html?id=${id}`;
 }
+function updateNavbar() {
+    const userId = localStorage.getItem("userId");
+    const firstName = localStorage.getItem("firstName");
+    const role = localStorage.getItem("role");
+
+    if (userId && firstName) {
+        document.getElementById("auth-buttons").innerHTML = `
+            ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Add Property</button>' : ''}
+            <span class="user-greeting">Hi ${firstName}!</span>
+            <button class="log-in-button" onclick="logout()">Logout</button>
+        `;
+    }
+}
+
+function logout() {
+    fetch(API + "/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: localStorage.getItem("userId") })
+    }).then(() => {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("firstName");
+        window.location.href = "/login";
+    });
+}
+
+updateNavbar();

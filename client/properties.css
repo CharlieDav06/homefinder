@@ -17,6 +17,7 @@ body {
   font-size: 70px;
   font-family: 'Oswald';
   color: white;
+  cursor:pointer;
 }
 
 .right-header {
@@ -213,3 +214,15 @@ body {
   cursor: pointer;
 }
 
+
+.user-greeting{
+  color:white;
+  font-size:2rem;
+  display:flex;
+  align-items: center;
+
+}
+
+button:hover{
+  cursor:pointer;
+}

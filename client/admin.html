@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - HomeFinder</title>
+  <link rel="stylesheet" href="/client/properties.css">
+  <link rel="stylesheet" href="/client/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="header">
+    <div class="left-header" onclick="window.location.href='/properties'">Homefinder Portal🏠🌀</div>
+    <div class="right-header" id="auth-buttons">
+      <button class="sign-up-button" onclick="window.location.href='/register'">sign up</button>
+      <button class="log-in-button" onclick="window.location.href='/login'">Login</button>
+    </div>
+  </div>
+
+  <div class="admin-container">
+    <h1 class="admin-title">Add Property</h1>
+
+    <div class="form-group">
+      <label>Property Type</label>
+      <select id="property-type">
+        <option value="">-- Select Type --</option>
+        <option value="residential">Residential</option>
+        <option value="rental">Rental</option>
+        <option value="commercial">Commercial</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Property Name</label>
+      <input type="text" id="name" placeholder="e.g. Sunset Villa">
+    </div>
+
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" id="location" placeholder="e.g. Derby, UK">
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="description" placeholder="Brief description of the property"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Image URL</label>
+      <input type="text" id="image_url" placeholder="e.g. house1.jpg">
+    </div>
+
+    <!-- Residential Fields -->
+    <div id="residential-fields" class="type-fields" style="display:none">
+      <div class="form-group">
+        <label>Number of Bedrooms</label>
+        <input type="number" id="res-bedrooms" min="0">
+      </div>
+      <div class="form-group">
+        <label>Number of Bathrooms</label>
+        <input type="number" id="res-bathrooms" min="0">
+      </div>
+      <div class="form-group">
+        <label>Price (£)</label>
+        <input type="number" id="res-price" min="0">
+      </div>
+      <div class="form-group checkbox-group">
+        <label>Furnished?</label>
+        <input type="checkbox" id="res-furnished">
+      </div>
+    </div>
+
+    <!-- Rental Fields -->
+    <div id="rental-fields" class="type-fields" style="display:none">
+      <div class="form-group">
+        <label>Number of Bedrooms</label>
+        <input type="number" id="ren-bedrooms" min="0">
+      </div>
+      <div class="form-group">
+        <label>Number of Bathrooms</label>
+        <input type="number" id="ren-bathrooms" min="0">
+      </div>
+      <div class="form-group">
+        <label>Monthly Rent (£)</label>
+        <input type="number" id="ren-monthly-rent" min="0">
+      </div>
+      <div class="form-group">
+        <label>Security Deposit (£)</label>
+        <input type="number" id="ren-security-deposit" min="0">
+      </div>
+      <div class="form-group">
+        <label>Lease Duration (months)</label>
+        <input type="number" id="ren-lease-duration" min="0">
+      </div>
+      <div class="form-group">
+        <label>Lease Terms</label>
+        <textarea id="ren-lease-terms" placeholder="Any additional lease terms"></textarea>
+      </div>
+      <div class="form-group checkbox-group">
+        <label>Furnished?</label>
+        <input type="checkbox" id="ren-furnished">
+      </div>
+      <div class="form-group checkbox-group">
+        <label>Pet Friendly?</label>
+        <input type="checkbox" id="ren-pet-friendly">
+      </div>
+    </div>
+
+    <!-- Commercial Fields -->
+    <div id="commercial-fields" class="type-fields" style="display:none">
+      <div class="form-group">
+        <label>Square Footage</label>
+        <input type="number" id="com-sqft" min="0">
+      </div>
+      <div class="form-group">
+        <label>Floors</label>
+        <input type="number" id="com-floors" min="1">
+      </div>
+      <div class="form-group">
+        <label>Property Usage</label>
+        <input type="text" id="com-usage" placeholder="e.g. Office, Retail">
+      </div>
+      <div class="form-group">
+        <label>Zoning Type</label>
+        <input type="text" id="com-zoning" placeholder="e.g. Commercial, Mixed Use">
+      </div>
+      <div class="form-group">
+        <label>Price (£)</label>
+        <input type="number" id="com-price" min="0">
+      </div>
+      <div class="form-group checkbox-group">
+        <label>Has Parking?</label>
+        <input type="checkbox" id="com-parking">
+      </div>
+    </div>
+
+    <button class="submit-button" onclick="submitProperty()">Add Property</button>
+    <p id="admin-msg"></p>
+  </div>
+
+  <script src="/client/admin.js"></script>
+</body>
+</html>
