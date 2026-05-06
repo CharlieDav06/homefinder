@@ -235,7 +235,7 @@ def login_user():
     cur.close()
     con.close()
 
-    send_2fa_email(stored_email, token)
+    
 
     return jsonify({
         'success': True,
