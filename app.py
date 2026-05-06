@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 def send_2fa_email(recipient_email, token):
-    sender_email = "your_email@gmail.com"
+    sender_email = "kaellion9812@gmail.com"
     sender_password = "hrqy rufc zgoa jdzq"
 
     message = EmailMessage()
