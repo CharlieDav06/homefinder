@@ -1,9 +1,15 @@
 import os
 import bcrypt
 import random
+
+import pymysql
+pymysql.install_as_MySQLdb()
+
+
+
 from flask import Flask, jsonify, send_from_directory, request
 from datetime import datetime, timedelta
-from flask_mysqldb import MySQL
+from flask_pymysql import MySQL
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
