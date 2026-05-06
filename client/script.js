@@ -1,32 +1,48 @@
 const API = "http://localhost:5000/api";
 
+
+document.addEventListener("DOMContentLoaded", function () {
+    const registerBtn = document.getElementById("registerBtn");
+
+    if (registerBtn) {
+        registerBtn.addEventListener("click", registerUser);
+    }
+});
+
 function registerUser() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const msg = document.getElementById("msg");
+
+    msg.innerText = "Registering...";
+
     fetch(API + "/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value
+            email: email,
+            password: password
         })
     })
     .then(response => response.json())
     .then(data => {
-        const msg = document.getElementById("msg");
-
         if (data.success) {
-            msg.innerText = "Registration successful. You can now log in.";
+            msg.innerText = "Registration successful. Redirecting...";
+
+            setTimeout(function () {
+                window.location.href = "/properties";
+            }, 1000);
         } else {
             msg.innerText = data.message || "Registration failed.";
         }
     })
     .catch(error => {
         console.error("Register error:", error);
-        document.getElementById("msg").innerText = "Server connection failed.";
+        msg.innerText = "Could not connect to server.";
     });
 }
-
 
 function login() {
 
