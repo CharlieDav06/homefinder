@@ -3,11 +3,25 @@ import bcrypt
 import random
 import pymysql
 import pymysql.cursors
+import smtplib
+from email.message import EmailMessage
 from flask import Flask, jsonify, send_from_directory, request
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+def send_2fa_email(recipient_email, token):
+    sender_email = "kaellion9812@gmail.com"
+    sender_password = "hrqy rufc zgoa jdzq"
 
+    message = EmailMessage()
+    message["Subject"] = "HomeFinder 2FA Verification Code"
+    message["From"] = sender_email
+    message["To"] = recipient_email
+    message.set_content(f"Your HomeFinder verification code is: {token}")
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(sender_email, sender_password)
+        smtp.send_message(message)
 db_config = {
     'host': 'localhost',
     'user': 'root',
@@ -122,41 +136,79 @@ def twofa_page():
 @app.route('/api/register', methods=['POST'])
 def register_user():
     data = request.get_json()
+
     email = data.get('email')
     password = data.get('password')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    phone_number = data.get('phone_number')
+    gdpr_consent_given = data.get('gdpr_consent_given')
 
-    if not email or not password:
-        return jsonify({'success': False, 'message': 'Email and password are required.'}), 400
+    if not email or not password or not first_name or not last_name or not phone_number:
+        return jsonify({
+            'success': False,
+            'message': 'All fields are required.'
+        }), 400
+
+    if gdpr_consent_given is not True:
+        return jsonify({
+            'success': False,
+            'message': 'You must give GDPR consent to register.'
+        }), 400
 
     con = get_db()
     cur = con.cursor()
+
     cur.execute("SELECT user_id FROM user WHERE email = %s", (email,))
     existing_user = cur.fetchone()
 
     if existing_user:
         cur.close()
         con.close()
-        return jsonify({'success': False, 'message': 'This email is already registered.'}), 409
+        return jsonify({
+            'success': False,
+            'message': 'This email is already registered.'
+        }), 409
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    cur.execute("INSERT INTO user (email, password) VALUES (%s, %s)", (email, hashed_password.decode('utf-8')))
+
+    cur.execute("""
+        INSERT INTO user 
+            (email, password, first_name, last_name, phone_number, gdpr_consent_given)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (
+        email,
+        hashed_password.decode('utf-8'),
+        first_name,
+        last_name,
+        phone_number,
+        gdpr_consent_given
+    ))
+
     con.commit()
     cur.close()
     con.close()
-    return jsonify({'success': True, 'message': 'User registered successfully.'})
 
+    return jsonify({
+        'success': True,
+        'message': 'User registered successfully.'
+    })
 @app.route('/api/login', methods=['POST'])
 def login_user():
     data = request.get_json()
+
     email = data.get('email')
     password = data.get('password')
 
-    if not email or not password:
-        return jsonify({'success': False, 'message': 'Email and password are required.'}), 400
-
     con = get_db()
     cur = con.cursor()
-    cur.execute("SELECT user_id, email, password FROM user WHERE email = %s", (email,))
+
+    cur.execute("""
+        SELECT user_id, email, password
+        FROM user
+        WHERE email = %s
+    """, (email,))
+
     user = cur.fetchone()
 
     if not user:
@@ -164,21 +216,35 @@ def login_user():
         con.close()
         return jsonify({'success': False, 'message': 'Invalid login details.'}), 401
 
-    if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+    user_id = user['user_id']
+    stored_email = user['email']
+    stored_password = user['password']
+
+    if not bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
         cur.close()
         con.close()
         return jsonify({'success': False, 'message': 'Invalid login details.'}), 401
 
     token = str(random.randint(100000, 999999))
     expires_at = datetime.now() + timedelta(minutes=5)
-    cur.execute("INSERT INTO twofa_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)", (user['user_id'], token, expires_at))
+
+    cur.execute("""
+        INSERT INTO twofa_tokens (user_id, token, expires_at)
+        VALUES (%s, %s, %s)
+    """, (user_id, token, expires_at))
+
     con.commit()
     cur.close()
     con.close()
 
-    print("2FA CODE:", token)
-    return jsonify({'success': True, 'step': '2FA', 'userId': user['user_id'], 'message': '2FA code generated.'})
+    
 
+    return jsonify({
+        'success': True,
+        'step': '2FA',
+        'userId': user_id,
+        'message': '2FA code sent to your email.'
+    })
 @app.route('/api/verify-2fa', methods=['POST'])
 def verify_2fa():
     data = request.get_json()
@@ -215,3 +281,4 @@ def verify_2fa():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    

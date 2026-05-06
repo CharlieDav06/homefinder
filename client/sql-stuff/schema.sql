@@ -111,11 +111,16 @@ CREATE TABLE Rental (
   FOREIGN KEY (property_id) REFERENCES Property(property_id)
 );
 CREATE TABLE twofa_tokens (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    token VARCHAR(10),
-    expires_at DATETIME,
-    used BOOLEAN DEFAULT FALSE
+    token_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(10) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+
+    CONSTRAINT fk_twofa_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(user_id)
+    ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS twofa_tokens (
     token_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -124,3 +129,8 @@ CREATE TABLE IF NOT EXISTS twofa_tokens (
     expires_at DATETIME NOT NULL,
     used BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
+  
+    CONSTRAINT fk_twofa_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(user_id)
+    ON DELETE CASCADE
