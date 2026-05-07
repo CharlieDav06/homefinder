@@ -130,7 +130,7 @@ function updateNavbar() {
 
     if (userId && firstName) {
     document.getElementById("auth-buttons").innerHTML = `
-        ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Add Property</button>' : ''}
+        ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Edit Property</button>' : ''}
         <button class="log-in-button" onclick="window.location.href='/favourites'">♥ Saved</button>
         <span class="user-greeting">Hi ${firstName}!</span>
         <button class="log-in-button" onclick="logout()">Logout</button>

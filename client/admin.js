@@ -7,7 +7,6 @@ function updateNavbar() {
 
     if (userId && firstName) {
         document.getElementById("auth-buttons").innerHTML = `
-            ${role === 'admin' ? '<button class="log-in-button" onclick="window.location.href=\'/admin\'">Add Property</button>' : ''}
             <span class="user-greeting">Hi ${firstName}!</span>
             <button class="log-in-button" onclick="logout()">Logout</button>
         `;
@@ -94,6 +93,58 @@ function submitProperty() {
         msg.innerText = data.message || (data.success ? 'Property added!' : 'Failed.');
     });
 }
+
+
+
+function loadPropertiesForDelete() {
+    fetch(API + '/properties')
+        .then(res => res.json())
+        .then(properties => {
+            const container = document.getElementById('delete-property-list');
+            container.innerHTML = '';
+
+            properties.forEach(property => {
+                const div = document.createElement('div');
+                div.className = 'delete-property-row';
+                div.id = `property-row-${property.property_id}`;
+                div.innerHTML = `
+                    <div class="delete-property-info">
+                        <span class="delete-property-name">${property.name}</span>
+                        <span class="delete-property-location">${property.location}</span>
+                        <span class="delete-property-type">${property.type}</span>
+                    </div>
+                    <button class="delete-button" onclick="deleteProperty(${property.property_id})">Delete</button>
+                `;
+                container.appendChild(div);
+            });
+        });
+}
+
+function deleteProperty(propertyId) {
+    if (!confirm('Are you sure you want to delete this property? This cannot be undone.')) return;
+
+    fetch(API + `/admin/delete-property/${propertyId}`, {
+        method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`property-row-${propertyId}`).remove();
+        } else {
+            alert('Failed to delete property.');
+        }
+    });
+}
+
+loadPropertiesForDelete();
+
+
+
+
+
+
+
+
 
 updateNavbar();
 document.getElementById('property-type').addEventListener('change', showTypeFields);

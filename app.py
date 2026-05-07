@@ -436,5 +436,43 @@ def get_favourites(user_id):
 def favourites_page():
     return send_from_directory(CLIENT_FOLDER, 'favourites.html')
 
+
+
+
+
+@app.route('/api/admin/delete-property/<int:property_id>', methods=['DELETE'])
+def delete_property(property_id):
+    con = get_db()
+    cur = con.cursor()
+
+    # Delete from sub-tables first to avoid foreign key errors
+    cur.execute("DELETE FROM Residential WHERE property_id = %s", (property_id,))
+    cur.execute("DELETE FROM Rental WHERE property_id = %s", (property_id,))
+    cur.execute("DELETE FROM Commercial WHERE property_id = %s", (property_id,))
+    cur.execute("DELETE FROM Favourites WHERE property_id = %s", (property_id,))
+    cur.execute("DELETE FROM Property WHERE property_id = %s", (property_id,))
+
+    con.commit()
+    cur.close()
+    con.close()
+
+    return jsonify({'success': True, 'message': 'Property deleted.'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
